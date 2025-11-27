@@ -1,0 +1,28 @@
+// server.js
+const express = require("express");
+const multer = require("multer");
+const cors = require("cors");
+const app = express();
+const upload = multer({ dest: "uploads/" });
+
+app.use(cors());
+app.use(express.json());
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  console.log("Received file:", req.file?.originalname);
+  res.json({ ok: true, key: req.file ? req.file.filename : "mockkey", url: null });
+});
+
+app.post("/query", (req, res) => {
+  const { question } = req.body || {};
+  const q = (question || "").toLowerCase();
+  let answer = "Mock server: I don't know. Try asking about name/date/total/summary.";
+  if (q.includes("name")) answer = "Mock server: The name is John Doe.";
+  if (q.includes("date")) answer = "Mock server: The date is 2025-07-01.";
+  if (q.includes("total") || q.includes("amount")) answer = "Mock server: Total is 12,345.";
+  if (q.includes("summary") || q.includes("summarize")) answer = "Mock server: This doc looks like an invoice with contact details and 2 tables.";
+  console.log("Query:", question, "=>", answer);
+  res.json({ answer });
+});
+
+app.listen(8080, () => console.log("Mock backend running on http://localhost:8080"));
